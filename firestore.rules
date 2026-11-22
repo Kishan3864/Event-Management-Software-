@@ -1,0 +1,79 @@
+rules_version = '2';
+
+// Multi-client rules.
+// - admins/{uid}      : platform admins (Brighton Solution).
+// - users/{uid}       : which client business a login belongs to. Created by platform admins.
+// - tenants/{id}      : a client business record; its data lives in the named collections below it.
+// - clientNotes/{id}  : the platform admin's private notes about a client.
+// A login can only reach its own business, and only while that business is active and within its plan.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSuper() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isMember(t) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tenantId == t;
+    }
+
+    function isActive(t) {
+      let tenant = get(/databases/$(database)/documents/tenants/$(t)).data;
+      let until = tenant.get('validUntil', null);
+      return tenant.status == 'active' && (until == null || request.time < until);
+    }
+
+    // A business may only keep its own display name, city and phone in step, and only with sensible values.
+    // Everything else in its record (status, plan date, link, owner) is set by the platform admin alone.
+    function validProfileChange() {
+      let d = request.resource.data;
+      return d.diff(resource.data).affectedKeys().hasOnly(['name', 'city', 'phone', 'updatedAt'])
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 100
+        && d.get('city', '') is string && d.get('city', '').size() <= 60
+        && d.get('phone', '') is string && d.get('phone', '').matches('[0-9]{0,10}')
+        && (!('updatedAt' in d) || d.updatedAt is timestamp);
+    }
+
+    match /admins/{uid} {
+      allow get: if isSuper() && request.auth.uid == uid;
+      allow list: if isSuper();
+      // An admin may add or remove another admin (the first one is created in the Firebase Console).
+      allow create, delete: if isSuper();
+    }
+
+    match /users/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || isSuper());
+      allow list, create, update, delete: if isSuper();
+    }
+
+    match /tenants/{t} {
+      allow get: if isSuper() || isMember(t);
+      allow list, create, delete: if isSuper();
+      allow update: if isSuper() || (isMember(t) && isActive(t) && validProfileChange());
+
+      // The business's own data: exactly one level of these named collections. (A {document=**} wildcard here
+      // would also match the business record above and let a business rewrite or delete it.)
+      match /{col}/{docId} {
+        allow read, write: if col in ['settings', 'locations', 'categories', 'items', 'stockMoves', 'customers', 'bookings', 'payments', 'invoices', 'counters']
+          && (isSuper() || (isMember(t) && isActive(t)));
+      }
+
+      // Notifications from the platform admin: a business sees only those for all its logins or for its own login.
+      match /notices/{id} {
+        allow read: if isSuper() || (isMember(t) && resource.data.to in ['all', request.auth.uid]);
+        allow create, update, delete: if isSuper();
+      }
+    }
+
+    // The software owner's private notes about each client. No client can ever read these.
+    match /clientNotes/{t} {
+      allow read, write: if isSuper();
+    }
+  }
+}

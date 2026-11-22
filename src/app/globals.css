@@ -1,0 +1,232 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-danger-soft: var(--danger-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-brand-deep: var(--brand-deep);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.5);
+  --radius-3xl: calc(var(--radius) * 1.6);
+  --radius-4xl: calc(var(--radius) * 1.7);
+  --shadow-soft: 0 1px 2px rgb(20 20 30 / 0.05);
+  --shadow-lift: 0 1px 3px rgb(20 20 30 / 0.06), 0 8px 20px -12px rgb(20 20 30 / 0.18);
+}
+
+:root {
+  --radius: 0.375rem;
+  --background: #faf7f4;
+  --foreground: #1f1a1c;
+  --card: #ffffff;
+  --card-foreground: #1f1a1c;
+  --popover: #ffffff;
+  --popover-foreground: #1f1a1c;
+  --primary: #7a1f3d;
+  --primary-foreground: #fff8f0;
+  --brand-deep: #4e0d22;
+  --secondary: #f3ece7;
+  --secondary-foreground: #3a2a30;
+  --muted: #f4efeb;
+  --muted-foreground: #6e6468;
+  --accent: #f7ede6;
+  --accent-foreground: #5a1029;
+  --destructive: #dc2626;
+  --danger-soft: #fdecec;
+  --border: #ebe3dd;
+  --input: #e1d7d0;
+  --ring: #b4546f;
+  --success: #15803d;
+  --success-soft: #e6f6ec;
+  --warning: #b45309;
+  --warning-soft: #fdf3dc;
+  --info: #1d4ed8;
+  --info-soft: #e5edff;
+  --gold: #b7862c;
+  --gold-soft: #f8eedb;
+  --chart-1: #7a1f3d;
+  --chart-2: #b7862c;
+  --chart-3: #15803d;
+  --chart-4: #1d4ed8;
+  --chart-5: #6e6468;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1f1a1c;
+  --sidebar-primary: #7a1f3d;
+  --sidebar-primary-foreground: #fff8f0;
+  --sidebar-accent: #f7ede6;
+  --sidebar-accent-foreground: #5a1029;
+  --sidebar-border: #ebe3dd;
+  --sidebar-ring: #b4546f;
+  --brand-g1: #9b2c50;
+  --brand-g2: #7a1f3d;
+  --brand-g3: #4e0d22;
+}
+
+/* The software owner's admin panel (admin address) has its own look: deep indigo instead of the businesses' maroon. */
+:root[data-app="admin"] {
+  --background: #f3f6fb;
+  --foreground: #0f172a;
+  --card-foreground: #0f172a;
+  --popover-foreground: #0f172a;
+  --primary: #1d4ed8;
+  --primary-foreground: #f8fafc;
+  --brand-deep: #172554;
+  --secondary: #e9eff9;
+  --secondary-foreground: #1e293b;
+  --muted: #eef2f8;
+  --muted-foreground: #5b6477;
+  --accent: #e6eefc;
+  --accent-foreground: #1e3a8a;
+  --border: #dde3ee;
+  --input: #d2d9e6;
+  --ring: #3b82f6;
+  --gold: #0e7490;
+  --gold-soft: #e0f2f7;
+  --chart-1: #1d4ed8;
+  --chart-2: #0e7490;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #1d4ed8;
+  --sidebar-primary-foreground: #f8fafc;
+  --sidebar-accent: #e6eefc;
+  --sidebar-accent-foreground: #1e3a8a;
+  --sidebar-border: #dde3ee;
+  --sidebar-ring: #3b82f6;
+  --brand-g1: #3b82f6;
+  --brand-g2: #1d4ed8;
+  --brand-g3: #172554;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    font-size: 15px;
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01";
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  @media (max-width: 767px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+  input[type="date"],
+  input[type="time"] {
+    min-height: 2.75rem;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 20%, transparent);
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+@utility shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
+
+@utility bg-brand-gradient {
+  background-image: radial-gradient(120% 120% at 0% 0%, var(--brand-g1) 0%, var(--brand-g2) 45%, var(--brand-g3) 100%);
+}
+
+@utility page-enter {
+  animation: page-enter 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

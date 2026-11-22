@@ -1,0 +1,20 @@
+{
+  "projects": {
+    "default": "sagar-tent-house"
+  },
+  "targets": {
+    "sagar-tent-house": {
+      "hosting": {
+        "app": [
+          "tent-house-manager"
+        ],
+        "admin": [
+          "tent-house-admin"
+        ],
+        "legacy": [
+          "sagar-tent-house"
+        ]
+      }
+    }
+  }
+}
