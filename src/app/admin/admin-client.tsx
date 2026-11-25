@@ -64,6 +64,7 @@ import {
   recordNeedsCleaning,
   removeMembership,
   sendLoginReset,
+  setClientPassword,
   sendNotice,
   setClientSlug,
   setClientStatus,
@@ -247,8 +248,8 @@ export function AdminClient() {
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[15px] leading-tight font-semibold">Admin Panel</p>
-            <p className="flex items-center gap-1 text-xs text-muted-foreground">
-              <ShieldCheck className="size-3.5 text-primary" /> Admin · {user?.email}
+            <p className="truncate text-xs text-muted-foreground">
+              {user?.email}
             </p>
           </div>
           {tenantId ? (
@@ -272,13 +273,13 @@ export function AdminClient() {
         </div>
       </header>
 
-      <main className="page-enter mx-auto max-w-5xl px-4 pt-6 pb-16">
-        <div className="mb-5 flex flex-wrap items-end gap-3">
+      <main className="page-enter mx-auto max-w-6xl px-4 pt-6 pb-16 sm:px-6">
+        <div className="mb-5 flex flex-col gap-5 rounded-3xl bg-brand-gradient p-5 text-white shadow-lift sm:flex-row sm:items-end sm:justify-between sm:p-8">
           <div className="min-w-0 flex-1">
-            <h1 className="text-[1.6rem] font-semibold tracking-tight lg:text-3xl">Clients</h1>
-            <p className="text-sm text-muted-foreground">Every business gets the same app with its own name, logo, data and logins.</p>
+            <h1 className="text-3xl font-semibold tracking-tight lg:text-4xl">Clients</h1>
+            <p className="mt-1 text-sm text-white/85">Manage business links, logins and plan access.</p>
           </div>
-          <Button onClick={() => setAddOpen(true)}>
+          <Button variant="secondary" className="w-full sm:w-auto" onClick={() => setAddOpen(true)}>
             <Plus /> Add client
           </Button>
         </div>
@@ -289,7 +290,7 @@ export function AdminClient() {
             { l: "Active", v: counts.active, c: "text-success" },
             { l: "On hold", v: counts.hold, c: counts.hold ? "text-destructive" : "text-muted-foreground" },
           ].map((x) => (
-            <div key={x.l} className="rounded-2xl bg-card p-4 shadow-soft ring-1 ring-black/[0.04]">
+            <div key={x.l} className="min-w-0 rounded-2xl border bg-card p-3 shadow-soft sm:p-5">
               <p className="text-xs text-muted-foreground">{x.l}</p>
               <p className={cn("mt-1 text-2xl font-semibold tabular", x.c)}>{x.v}</p>
             </div>
@@ -307,7 +308,7 @@ export function AdminClient() {
               const until = validUntilYMD(t);
               const mine = membership?.tenantId === t.id;
               return (
-                <div key={t.id} className="flex flex-col gap-3 rounded-2xl bg-card p-4 shadow-soft ring-1 ring-black/[0.04]">
+                <div key={t.id} className="min-w-0 flex flex-col gap-4 rounded-2xl border bg-card p-4 shadow-soft transition-shadow hover:shadow-lift sm:p-5">
                   <div className="flex items-start gap-3">
                     <BusinessMark name={t.name} className="size-11" />
                     <div className="min-w-0 flex-1">
@@ -368,22 +369,35 @@ export function AdminClient() {
                     </DropdownMenu>
                   </div>
                   {t.slug ? (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(portalUrl(t.slug!));
-                          toast.success("Client link copied", { description: portalUrl(t.slug!) });
-                        } catch {
-                          toast.info(portalUrl(t.slug!));
-                        }
-                      }}
-                      className="flex items-center gap-2 rounded-xl bg-accent/60 px-3 py-2 text-left text-xs text-primary transition-colors hover:bg-accent"
-                    >
-                      <Link2 className="size-3.5 shrink-0" />
-                      <span className="min-w-0 flex-1 truncate font-medium">{portalUrl(t.slug!)}</span>
-                      <Copy className="size-3.5 shrink-0" />
-                    </button>
+                    <div className="flex min-w-0 items-center gap-2 rounded-xl bg-accent/60 px-3 py-1 text-xs text-primary">
+                      <a
+                        href={portalUrl(t.slug)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex min-w-0 flex-1 items-center gap-2 rounded-sm py-2 font-medium hover:underline"
+                        aria-label={`Open the sign-in link for ${t.name}`}
+                      >
+                        <Link2 className="size-3.5 shrink-0" />
+                        <span className="truncate">{portalUrl(t.slug)}</span>
+                      </a>
+                      <Button
+                        type="button"
+                        size="icon-sm"
+                        variant="ghost"
+                        aria-label={`Copy the sign-in link for ${t.name}`}
+                        onClick={async () => {
+                          const link = portalUrl(t.slug!);
+                          try {
+                            await navigator.clipboard.writeText(link);
+                            toast.success("Client link copied");
+                          } catch {
+                            toast.info(link);
+                          }
+                        }}
+                      >
+                        <Copy />
+                      </Button>
+                    </div>
                   ) : null}
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <ToneBadge tone={st.tone}>{st.label}</ToneBadge>
@@ -429,6 +443,7 @@ export function AdminClient() {
       <EditClientDialog tenant={editFor} onClose={() => setEditFor(null)} />
       <LoginsDialog
         tenant={loginsFor}
+        onCredentials={setCreds}
         onClose={() => setLoginsFor(null)}
         onAdd={(t) => {
           setLoginsFor(null);
@@ -865,11 +880,11 @@ function CredentialsDialog({ creds, onClose }: { creds: Creds | null; onClose: (
     "Open the link on your phone and tap Install App to add it to your home screen.",
     "You can change the password later in Settings → Account.",
   ].join("\n");
-  const copy = async () => {
+  const copy = async (value: string, label?: string) => {
     try {
-      await navigator.clipboard.writeText(message);
-      setCopied(true);
-      toast.success("Login details copied");
+      await navigator.clipboard.writeText(value);
+      if (!label) setCopied(true);
+      toast.success(label ? `${label} copied` : "Login details copied");
     } catch {
       toast.error("Could not copy. Please select and copy manually.");
     }
@@ -889,9 +904,14 @@ function CredentialsDialog({ creds, onClose }: { creds: Creds | null; onClose: (
             { k: "Login email", v: creds.email },
             { k: "Password", v: creds.password },
           ].map((r) => (
-            <div key={r.k} className="flex items-baseline justify-between gap-3">
-              <span className="text-muted-foreground">{r.k}</span>
-              <span className="font-medium break-all text-right select-all">{r.v}</span>
+            <div key={r.k} className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">{r.k}</p>
+                <p className="font-medium wrap-anywhere select-all">{r.v}</p>
+              </div>
+              <Button type="button" variant="ghost" size="icon" aria-label={`Copy ${r.k.toLowerCase()}`} onClick={() => void copy(r.v, r.k)}>
+                <Copy />
+              </Button>
             </div>
           ))}
         </div>
@@ -901,7 +921,7 @@ function CredentialsDialog({ creds, onClose }: { creds: Creds | null; onClose: (
               <MessageCircle /> Send on WhatsApp
             </Button>
           ) : null}
-          <Button variant="outline" onClick={copy}>
+          <Button variant="outline" onClick={() => void copy(message)}>
             {copied ? <Check /> : <Copy />} {copied ? "Copied" : "Copy details"}
           </Button>
           <Button onClick={onClose}>Done</Button>
@@ -996,7 +1016,13 @@ function useClientLogins(tenantId: string | undefined) {
   return useLiveQuery<Login>(() => (tenantId ? query(rootCol("users"), where("tenantId", "==", tenantId)) : null), [tenantId]);
 }
 
-function LoginsDialog({ tenant, onClose, onAdd }: { tenant: Tenant | null; onClose: () => void; onAdd: (t: Tenant) => void }) {
+function LoginsDialog({ tenant, onClose, onAdd, onCredentials }: {
+  tenant: Tenant | null;
+  onClose: () => void;
+  onAdd: (t: Tenant) => void;
+  onCredentials: (credentials: Creds) => void;
+}) {
+  const [resetLogin, setResetLogin] = useState<Login | null>(null);
   const confirm = useConfirm();
   const logins = useClientLogins(tenant?.id);
   const [busy, setBusy] = useState<string | null>(null);
@@ -1018,9 +1044,23 @@ function LoginsDialog({ tenant, onClose, onAdd }: { tenant: Tenant | null; onClo
       setBusy(null);
     }
   };
+  if (tenant && resetLogin) {
+    return (
+      <SetClientPasswordDialog
+        tenant={tenant}
+        login={resetLogin}
+        onClose={() => setResetLogin(null)}
+        onCredentials={(credentials) => {
+          setResetLogin(null);
+          onClose();
+          onCredentials(credentials);
+        }}
+      />
+    );
+  }
   return (
     <Dialog open={!!tenant} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="size-5 text-primary" /> Logins
@@ -1032,14 +1072,26 @@ function LoginsDialog({ tenant, onClose, onAdd }: { tenant: Tenant | null; onClo
             <p className="p-3 text-sm text-muted-foreground">Loading…</p>
           ) : logins.data.length ? (
             logins.data.map((l) => (
-              <div key={l.id} className="flex items-center gap-2 p-3">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{l.email || "(no email)"}</p>
+              <div key={l.id} className="flex flex-wrap items-center gap-2 p-3">
+                <div className="w-full min-w-0 sm:flex-1">
+                  <p className="wrap-anywhere text-sm font-medium">{l.email || "(no email)"}</p>
                   <p className="text-xs text-muted-foreground">
                     {tenant?.ownerUid === l.id ? "Main owner" : "Login"}
                     {l.name ? ` · ${l.name}` : ""}
                   </p>
                 </div>
+                {l.email ? (
+                  <Button size="icon-sm" variant="ghost" aria-label="Copy login email" onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(l.email!);
+                      toast.success("Login email copied");
+                    } catch {
+                      toast.error("Could not copy the login email");
+                    }
+                  }}>
+                    <Copy />
+                  </Button>
+                ) : null}
                 {l.email ? (
                   <Button
                     size="sm"
@@ -1053,7 +1105,12 @@ function LoginsDialog({ tenant, onClose, onAdd }: { tenant: Tenant | null; onClo
                       }
                     }}
                   >
-                    <KeyRound /> Reset
+                    <Mail /> Email reset
+                  </Button>
+                ) : null}
+                {l.email && process.env.NEXT_PUBLIC_ADMIN_PASSWORD_RESET === "1" ? (
+                  <Button size="sm" variant="outline" onClick={() => setResetLogin(l)}>
+                    <KeyRound /> Set password
                   </Button>
                 ) : null}
                 <Button size="sm" variant="ghost" className="text-destructive" disabled={busy === l.id} onClick={() => remove(l)} aria-label="Remove access">
@@ -1073,6 +1130,63 @@ function LoginsDialog({ tenant, onClose, onAdd }: { tenant: Tenant | null; onClo
             <UserPlus /> Add a login
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SetClientPasswordDialog({ tenant, login, onClose, onCredentials }: {
+  tenant: Tenant;
+  login: Login;
+  onClose: () => void;
+  onCredentials: (credentials: Creds) => void;
+}) {
+  const [password, setPassword] = useState(() => genPassword(16));
+  const [confirmation, setConfirmation] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    try {
+      const email = await setClientPassword(tenant.id, login.id, password, confirmation);
+      onCredentials({ business: tenant.name, email, password, slug: tenant.slug, phone: tenant.phone, isNew: false });
+    } catch (error) {
+      toast.error(authErrorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Dialog open onOpenChange={(open) => { if (!open && !busy) onClose(); }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Set client password</DialogTitle>
+          <DialogDescription className="wrap-anywhere">
+            Set a new password for {login.email}. Share the new password so they can sign in again.
+          </DialogDescription>
+        </DialogHeader>
+        <form className="space-y-4" onSubmit={submit}>
+          <Field label="New client password" htmlFor="client-new-password" hint="12–128 characters">
+            <div className="flex gap-2">
+              <Input id="client-new-password" className="min-w-0" autoComplete="off" required minLength={12} maxLength={128} value={password} onChange={(event) => setPassword(event.target.value)} disabled={busy} />
+              <Button type="button" variant="outline" size="icon" aria-label="Generate password" disabled={busy} onClick={() => setPassword(genPassword(16))}>
+                <RefreshCw />
+              </Button>
+            </div>
+          </Field>
+          <Field label="Your admin password" htmlFor="admin-confirm-password">
+            <Input id="admin-confirm-password" type="password" autoComplete="current-password" required value={confirmation} onChange={(event) => setConfirmation(event.target.value)} disabled={busy} />
+          </Field>
+          <DialogFooter>
+            <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Cancel</Button>
+            <Button type="submit" disabled={busy || password.length < 12 || !confirmation}>
+              {busy ? <Loader2 className="animate-spin" /> : <KeyRound />} Set password
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

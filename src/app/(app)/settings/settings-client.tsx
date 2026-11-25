@@ -261,7 +261,7 @@ function VenuesTab() {
         </Button>
       }
     >
-      <p className="mb-3 text-sm text-muted-foreground">Resorts and gardens can be booked as venues. Godowns are for your records.</p>
+      <p className="mb-3 text-sm text-muted-foreground">Use any saved venue in a booking. Godowns are storage locations.</p>
       {locations.length ? (
         <ul className="divide-y">
           {locations.map((l) => (
@@ -311,14 +311,14 @@ function VenuesTab() {
 
 function LocationDialog({ open, onOpenChange, location }: { open: boolean; onOpenChange: (o: boolean) => void; location: Location | null }) {
   const [name, setName] = useState("");
-  const [type, setType] = useState<LocationType>("garden");
+  const [type, setType] = useState<LocationType>("venue");
   const [rate, setRate] = useState<number | "">("");
   const [address, setAddress] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     if (!open) return;
     setName(location?.name ?? "");
-    setType(location?.type ?? "garden");
+    setType(location?.type ?? "venue");
     setRate(location?.rate ?? "");
     setAddress(location?.address ?? "");
   }, [open, location]);
@@ -343,11 +343,11 @@ function LocationDialog({ open, onOpenChange, location }: { open: boolean; onOpe
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{location ? "Edit location" : "Add location"}</DialogTitle>
-          <DialogDescription>Resort, garden or godown.</DialogDescription>
+          <DialogDescription>Choose Other venue for halls, grounds and any other bookable location.</DialogDescription>
         </DialogHeader>
         <ChipGroup options={LOCATION_TYPES.map((t) => ({ value: t.value, label: t.label }))} value={type} onChange={setType} />
         <Field label="Name" required>
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Shree Garden" />
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. City Convention Hall" />
         </Field>
         {type !== "godown" ? (
           <Field label="Default rent per day">

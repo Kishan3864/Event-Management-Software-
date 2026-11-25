@@ -13,7 +13,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: { default: PRODUCT.name, template: `%s · ${PRODUCT.name}` },
-  description: "Bookings, billing, payments and stock for tent houses, resorts and gardens.",
+  description: "Bookings, billing, payments and stock for event businesses.",
   applicationName: PRODUCT.name,
   // The install file (manifest) link is added by INSTALL_FILE below, per business.
   appleWebApp: { capable: true, title: PRODUCT.shortName, statusBarStyle: "default" },

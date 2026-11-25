@@ -211,7 +211,7 @@ export function LoginClient() {
           <BrandIcon className="size-12 rounded-2xl ring-1 ring-white/20" />
           <div>
             <p className="text-lg font-semibold">{brandName}</p>
-            <p className="text-sm text-white/70">{isAdmin ? "Software owner panel" : "Tent · Resort · Garden"}</p>
+            <p className="text-sm text-white/70">{isAdmin ? "Software owner panel" : "Bookings & billing"}</p>
           </div>
         </div>
         <div className="relative max-w-md">
@@ -250,13 +250,19 @@ export function LoginClient() {
             <div className="mb-8 flex flex-col items-center text-center lg:hidden">
               <BrandIcon className="size-16 rounded-2xl shadow-lift" />
               <p className="mt-4 text-xl font-semibold tracking-tight">{brandName}</p>
-              <p className="text-sm text-muted-foreground">{isAdmin ? "Software owner panel" : "Tent · Resort · Garden"}</p>
+              <p className="text-sm text-muted-foreground">{isAdmin ? "Software owner panel" : "Bookings & billing"}</p>
             </div>
-            <div className={cn("rounded-3xl bg-card p-6 shadow-lift ring-1 ring-black/[0.04] sm:p-8", isAdmin && "border-t-4 border-primary")}>
+            <div className={cn("rounded-3xl border border-border/80 bg-card p-5 shadow-lift sm:p-9", isAdmin && "border-t-4 border-primary")}>
               {isAdmin ? (
                 <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-primary">
                   <ShieldCheck className="size-3.5" /> Admin Panel
                 </span>
+              ) : null}
+              {portal ? (
+                <div className="mb-4 inline-flex max-w-full items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
+                  <Link2 className="size-3.5 shrink-0" />
+                  <span className="wrap-anywhere">{linkPath(portal)}</span>
+                </div>
               ) : null}
               <h1 className="text-2xl font-semibold tracking-tight">{mode === "find" ? "Open your business" : "Welcome back"}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -423,7 +429,7 @@ function BusinessLinkBox() {
           }}
           placeholder="your-business"
           aria-label="Business link name"
-          className="h-11"
+          className="h-11 min-w-0"
         />
         <Button type="submit" className="h-11">
           Open

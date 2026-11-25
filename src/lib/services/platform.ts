@@ -3,8 +3,10 @@ import { deleteApp, initializeApp } from "firebase/app";
 import {
   connectAuthEmulator,
   createUserWithEmailAndPassword,
+  EmailAuthProvider,
   inMemoryPersistence,
   initializeAuth,
+  reauthenticateWithCredential,
   sendPasswordResetEmail,
   signOut,
 } from "firebase/auth";
@@ -198,6 +200,26 @@ export async function cleanClientRecords(tenants: Tenant[], adminUid: string | u
     }
   }
 }
+
+/** Re-authenticates the admin and invokes the privileged Firebase endpoint. */
+export async function setClientPassword(tenantId: string, uid: string, password: string, adminPassword: string) {
+  const user = auth().currentUser;
+  if (!user?.email) throw new Error("Sign in to the admin panel again.");
+  await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, adminPassword));
+  await user.getIdToken(true);
+  const { connectFunctionsEmulator, getFunctions, httpsCallable } = await import("firebase/functions");
+  const functions = getFunctions(auth().app, "asia-south1");
+  if (useEmulators && !functionsEmulatorConnected) {
+    connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+    functionsEmulatorConnected = true;
+  }
+  const result = await httpsCallable<{ tenantId: string; uid: string; password: string }, { email: string }>(
+    functions, "setClientPassword",
+  )({ tenantId, uid, password });
+  return result.data.email;
+}
+
+let functionsEmulatorConnected = false;
 
 export async function sendLoginReset(email: string) {
   await sendPasswordResetEmail(auth(), email.trim());

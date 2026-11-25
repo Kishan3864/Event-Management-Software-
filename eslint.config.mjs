@@ -6,10 +6,15 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    files: ["src/**/*.{ts,tsx}"],
     rules: {
       // React 19 advisory rule: resetting dialog/listener state when inputs change is intentional here.
       "react-hooks/set-state-in-effect": "warn",
     },
+  },
+  {
+    files: ["functions/**/*.cjs"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
   },
   // Override default ignores of eslint-config-next.
   globalIgnores([

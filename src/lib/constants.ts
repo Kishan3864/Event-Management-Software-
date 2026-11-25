@@ -104,12 +104,14 @@ export const SUGGESTED_ITEMS: { name: string; category: string; unit: string }[]
 ];
 
 export const LOCATION_TYPES: { value: LocationType; label: string }[] = [
+  { value: "venue", label: "Other venue" },
   { value: "resort", label: "Resort" },
   { value: "garden", label: "Garden" },
   { value: "godown", label: "Godown" },
 ];
 
 export const LOCATION_TYPE_LABEL: Record<LocationType, string> = {
+  venue: "Venue",
   resort: "Resort",
   garden: "Garden",
   godown: "Godown",

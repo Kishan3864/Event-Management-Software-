@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { useLiveQuery } from "@/hooks/use-live-query";
 import { availableNow } from "@/lib/availability";
 import { pendingOf } from "@/lib/calc";
-import { addDays, endOfMonth, greeting, monthLabel, startOfMonth, todayYMD } from "@/lib/dates";
+import { addDays, endOfMonth, monthLabel, startOfMonth, todayYMD } from "@/lib/dates";
 import { formatDateShort, formatINR, formatNumber } from "@/lib/format";
 import { netPaid } from "@/lib/services/payments";
 import type { Payment } from "@/lib/types";
@@ -79,7 +79,7 @@ export function DashboardClient() {
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm text-white/75">{formatDateShort(today)} · {monthLabel(today)}</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{greeting()}!</h1>
+            <h1 className="mt-1 wrap-anywhere text-2xl font-semibold tracking-tight sm:text-4xl">{settings.name || "Dashboard"}</h1>
             <p className="mt-1 text-sm text-white/80">
               {d.todays.length
                 ? `${d.todays.length} event${d.todays.length > 1 ? "s" : ""} today.`
@@ -159,7 +159,7 @@ export function DashboardClient() {
         </Link>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="space-y-6">
           <Section
             title="Today's events"

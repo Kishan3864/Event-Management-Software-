@@ -182,6 +182,7 @@ export function TableHead({ cols, fixed }: { cols: Col[]; fixed?: boolean }) {
   return (
     <View
       fixed={fixed}
+      minPresenceAhead={20}
       style={[
         s.row,
         {
@@ -327,7 +328,7 @@ export function TermsBlock({ title, text }: { title: string; text?: string }) {
   if (!lines.length) return null;
   return (
     <View style={{ marginTop: 10 }}>
-      <Text style={s.sectionTitle}>{title}</Text>
+      <Text minPresenceAhead={12} style={s.sectionTitle}>{title}</Text>
       {lines.map((l, i) => (
         <View key={i} style={[s.row, { marginTop: 1 }]}>
           <Text style={[s.muted, { width: 10, fontSize: 7.5 }]}>{i + 1}.</Text>

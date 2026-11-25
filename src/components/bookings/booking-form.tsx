@@ -68,7 +68,7 @@ const QUICK_CHARGES: { label: string; kind: ChargeKind }[] = [
 export function BookingForm({ initial, prefillMobile }: { initial?: Booking | null; prefillMobile?: string }) {
   const router = useRouter();
   const confirm = useConfirm();
-  const { settings, venues, locations, activeItems, items: allItems, bookings, windowStart } = useData();
+  const { settings, venues, activeItems, items: allItems, bookings, windowStart } = useData();
   const isEdit = !!initial;
   const today = todayYMD();
   const itemsLocked = initial?.status === "completed";
@@ -132,7 +132,10 @@ export function BookingForm({ initial, prefillMobile }: { initial?: Booking | nu
   const [extraBookings, setExtraBookings] = useState<Booking[]>([]);
 
   const eventDays = daysInclusive(fromDate, toDate);
-  const venue = venues.find((v) => v.id === venueId) ?? locations.find((v) => v.id === venueId) ?? null;
+  const previousVenue = initial?.venue?.locationId === venueId ? initial?.venue : null;
+  const venue = venues.find((v) => v.id === venueId) ?? (
+    previousVenue ? { id: previousVenue.locationId, name: previousVenue.name, type: previousVenue.type } : null
+  );
   const itemsById = useMemo(() => new Map(allItems.map((i) => [i.id, i])), [allItems]);
 
   // ---- customer lookup by mobile
@@ -250,9 +253,10 @@ export function BookingForm({ initial, prefillMobile }: { initial?: Booking | nu
       return;
     }
     const v = venues.find((x) => x.id === id);
+    const saved = initial?.venue?.locationId === id ? initial.venue : null;
     setVenueId(id);
-    setVenueRate(v?.rate ?? "");
-    setVenueDays(eventDays);
+    setVenueRate(v?.rate ?? saved?.rate ?? "");
+    setVenueDays(saved?.days ?? eventDays);
     if (v && !eventAddress.trim()) setEventAddress([v.name, v.address].filter(Boolean).join(", "));
   };
 
@@ -500,8 +504,8 @@ export function BookingForm({ initial, prefillMobile }: { initial?: Booking | nu
 
       {/* Venue */}
       <Section title="Venue" icon={MapPin}>
-        {venues.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No resort or garden added yet. Add them in Settings → Venues.</p>
+        {venues.length === 0 && !venue ? (
+          <p className="text-sm text-muted-foreground">Add a bookable location in Settings → Venues & godowns. For a one-off event, enter its address in Event details.</p>
         ) : (
           <div className="space-y-3">
             <Select value={venueId || "none"} onValueChange={onVenue}>
@@ -510,6 +514,9 @@ export function BookingForm({ initial, prefillMobile }: { initial?: Booking | nu
               </SelectTrigger>
               <SelectContent position="popper">
                 <SelectItem value="none">No venue (only items on rent)</SelectItem>
+                {venue && !venues.some((v) => v.id === venue.id) ? (
+                  <SelectItem value={venue.id}>{venue.name} (previously booked)</SelectItem>
+                ) : null}
                 {venues.map((v) => (
                   <SelectItem key={v.id} value={v.id}>
                     {v.name} · {LOCATION_TYPE_LABEL[v.type]}
@@ -519,15 +526,15 @@ export function BookingForm({ initial, prefillMobile }: { initial?: Booking | nu
             </Select>
             {venueLine ? (
               <>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   <Field label="Rent / day">
                     <NumInput prefix="₹" value={venueRate} onValueChange={setVenueRate} placeholder="0" />
                   </Field>
                   <Field label="Days">
                     <NumInput decimals={false} value={venueDays} onValueChange={setVenueDays} />
                   </Field>
-                  <Field label="Amount">
-                    <div className="flex h-11 items-center rounded-xl bg-muted px-3 font-semibold tabular md:h-10">{formatINR(venueLine.amount)}</div>
+                  <Field label="Amount" className="col-span-2 sm:col-span-1">
+                    <div className="flex min-h-11 items-center rounded-xl bg-muted px-3 font-semibold tabular md:min-h-10">{formatINR(venueLine.amount)}</div>
                   </Field>
                 </div>
                 {venueClash.length ? (

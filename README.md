@@ -43,7 +43,10 @@ npm run dev                         # http://localhost:3000
 
 1. Sign in on the admin address → **Clients** → **Add client**.
 2. Enter the business name (its link name fills in, e.g. `royal`), city, the owner's login email + password, plan validity.
-3. Send the card shown after saving (link + email + password) on WhatsApp. On first sign-in they complete the setup (logo, address, GSTIN, venues, items) and get a short app tour.
+3. In the credentials dialog, copy the business link and login email. Share the initial password privately with the intended user. On first sign-in they complete setup with their logo, address, GSTIN, venues and items.
+4. To add another login for the same business, use **Clients → Logins → Add a login**. Existing passwords cannot be read. **Email reset** emails a reset link. Where enabled, **Set password** lets the platform admin set a new password after confirming their own sign-in.
+
+A bookable venue can be any named location. Use **Other venue** in setup or **Settings → Venues & godowns** for halls, grounds and other locations. Saved venues appear in the booking form. For a one-off event, enter its address in **Event details**.
 
 ## Build & deploy
 
@@ -53,15 +56,21 @@ firebase deploy --only hosting       # clients, admin and the forwarding default
 firebase deploy --only firestore     # rules + indexes
 ```
 
+The direct admin password action needs Firebase Cloud Functions on a Blaze project. Deploy the callable first, then set `NEXT_PUBLIC_ADMIN_PASSWORD_RESET=1` when building the two live sites. The function runtime identity needs permission to read Firestore membership records and update Firebase Auth users.
+
+```bash
+firebase deploy --only functions:setClientPassword
+```
+
 ## Features
 
 Dashboard · Bookings (venue and/or items, charges, discount, GST, advance, double-booking & stock warnings, items out → return with damaged/missing) · Calendar · Tax Invoice / Bill (CGST+SGST or IGST, per-FY numbering, editable prefixes and next numbers) · Payments & receipts · Stock with history · Customers · Reports · Settings · A4 PDFs (invoice, bill, booking slip, delivery challan, return slip, receipt, reports) with Share/Download/Print · WhatsApp messages · Installable PWA that works on weak internet.
 
-## Testing with the Firebase Emulator Suite (optional, needs Java)
+## Testing with the Firebase Emulator Suite (optional, needs Java 21)
 
 ```bash
-firebase emulators:start --only auth,firestore --project demo-tent-house
-NEXT_PUBLIC_USE_EMULATORS=1 NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-tent-house \
+firebase emulators:start --only auth,firestore,functions --project demo-tent-house
+NEXT_PUBLIC_USE_EMULATORS=1 NEXT_PUBLIC_ADMIN_PASSWORD_RESET=1 NEXT_PUBLIC_FIREBASE_API_KEY=demo-api-key NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-tent-house \
 NEXT_PUBLIC_ADMIN_URL=http://localhost:3100 NEXT_PUBLIC_APP_URL=http://127.0.0.1:3100 npm run build
 ```
 

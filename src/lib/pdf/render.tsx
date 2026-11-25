@@ -97,6 +97,11 @@ function InvoiceDoc({ inv, st, paid, balance }: { inv: Invoice; st: Settings; pa
   return (
     <Document title={`${title} ${inv.invoiceNo}`} author={st.name} creator={st.name} producer={st.name}>
       <A4 footer={`This is a computer generated ${isTax ? "tax invoice" : "bill"}.`}>
+        <Text
+          fixed
+          style={{ position: "absolute", top: 13, left: 34, right: 34, color: C.muted, fontSize: 7 }}
+          render={({ pageNumber }) => pageNumber > 1 ? `${title} ${inv.invoiceNo} | ${st.name || "Business"}` : ""}
+        />
         <Letterhead
           settings={st}
           title={title}
@@ -106,7 +111,22 @@ function InvoiceDoc({ inv, st, paid, balance }: { inv: Invoice; st: Settings; pa
             { label: "Booking", value: inv.bookingNo },
           ]}
         />
-        <View style={[s.row, { marginBottom: 12 }]}>
+        <View
+          wrap={false}
+          style={[s.row, { backgroundColor: C.brandDeep, borderRadius: 8, padding: 14, marginBottom: 14 }]}
+        >
+          {[
+            { label: "Invoice total", value: money(inv.total) },
+            { label: "Amount received", value: money(paid) },
+            { label: "Balance due", value: money(Math.max(0, balance)) },
+          ].map(({ label, value }, index) => (
+            <View key={label} style={{ flex: 1, paddingLeft: index ? 13 : 0, borderLeftWidth: index ? 1 : 0, borderLeftColor: C.brand }}>
+              <Text style={{ fontSize: 7.5, color: C.goldSoft, marginBottom: 3 }}>{label}</Text>
+              <Text style={{ fontSize: 14, color: C.white, fontWeight: 700 }}>{value}</Text>
+            </View>
+          ))}
+        </View>
+        <View wrap={false} style={[s.row, { marginBottom: 14 }]}>
           <InfoBox title="Billed to" style={{ marginRight: 8 }}>
             <Text style={{ fontSize: 9.5, fontWeight: 600 }}>{inv.customer.name}</Text>
             <KV k="Mobile" v={formatPhone(inv.customer.mobile)} />
@@ -123,6 +143,7 @@ function InvoiceDoc({ inv, st, paid, balance }: { inv: Invoice; st: Settings; pa
           </InfoBox>
         </View>
 
+        <Text minPresenceAhead={38} style={s.sectionTitle}>Charges</Text>
         <TableHead cols={cols} />
         {inv.lines.map((l, i) => {
           const hasQty = l.qty != null && l.rate != null;
@@ -158,11 +179,13 @@ function InvoiceDoc({ inv, st, paid, balance }: { inv: Invoice; st: Settings; pa
           </View>
         </View>
 
-        <View style={[s.row, { marginTop: 6, alignItems: "flex-end" }]} wrap={false}>
+        <View style={[s.row, { marginTop: 9, alignItems: "flex-end" }]} minPresenceAhead={57}>
           <View style={{ flex: 1, marginRight: 16 }}>
             <TermsBlock title="Terms & conditions" text={st.terms} />
           </View>
-          <Signature name={st.name || "Business"} />
+          <View wrap={false}>
+            <Signature name={st.name || "Business"} />
+          </View>
         </View>
       </A4>
     </Document>

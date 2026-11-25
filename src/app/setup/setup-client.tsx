@@ -92,8 +92,7 @@ function SetupWizard() {
     logo: "",
   });
   const [locs, setLocs] = useState<LocRow[]>([
-    { key: keySeq++, name: "", type: "garden", rate: "", address: "" },
-    { key: keySeq++, name: "", type: "resort", rate: "", address: "" },
+    { key: keySeq++, name: "", type: "venue", rate: "", address: "" },
     { key: keySeq++, name: "Godown", type: "godown", rate: "", address: "" },
   ]);
   const [items, setItems] = useState<ItemRow[]>([]);
@@ -262,7 +261,7 @@ function SetupWizard() {
             <div>
               <h1 className="text-2xl font-semibold tracking-tight">Venues & godowns</h1>
               <p className="text-sm text-muted-foreground">
-                Add your resorts and gardens (bookable venues) and your godown. Leave a row empty to skip it.
+                Add any location you rent out, such as a hall, school ground or farmhouse. Add a godown for storage.
               </p>
             </div>
             <div className="space-y-3">
@@ -282,7 +281,7 @@ function SetupWizard() {
                   </div>
                   <div className="grid gap-3 sm:grid-cols-[1fr_160px]">
                     <Input
-                      placeholder={l.type === "godown" ? "e.g. Main Godown" : l.type === "resort" ? "Resort name" : "Garden name"}
+                      placeholder={l.type === "godown" ? "e.g. Main Godown" : "e.g. City Convention Hall"}
                       value={l.name}
                       onChange={(e) => setLocs((arr) => arr.map((x, i) => (i === idx ? { ...x, name: e.target.value } : x)))}
                     />

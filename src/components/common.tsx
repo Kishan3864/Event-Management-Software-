@@ -41,10 +41,10 @@ export function PageHeader({
         </Button>
       ) : null}
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-xl leading-tight font-semibold tracking-tight lg:text-2xl">{title}</h1>
+        <h1 className="wrap-break-word text-2xl leading-tight font-semibold tracking-tight lg:text-3xl">{title}</h1>
         {subtitle ? <div className="mt-0.5 text-sm text-muted-foreground">{subtitle}</div> : null}
       </div>
-      {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto">{actions}</div> : null}
     </div>
   );
 }
@@ -150,7 +150,7 @@ export function StatCard({
           <Icon className="size-[18px]" />
         </span>
       </div>
-      <div className="mt-2 text-2xl font-semibold tracking-tight tabular">{value}</div>
+      <div className="mt-2 wrap-anywhere text-xl font-semibold tracking-tight tabular sm:text-2xl">{value}</div>
       {hint ? <div className="mt-0.5 text-xs text-muted-foreground">{hint}</div> : null}
     </Card>
   );

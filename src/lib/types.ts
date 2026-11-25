@@ -2,7 +2,7 @@ import type { Timestamp } from "firebase/firestore";
 
 export type TS = Timestamp | null | undefined;
 
-export type LocationType = "resort" | "garden" | "godown";
+export type LocationType = "venue" | "resort" | "garden" | "godown";
 
 export interface Location {
   id: string;
