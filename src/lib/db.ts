@@ -30,7 +30,7 @@ export type ColName = (typeof COL)[keyof typeof COL];
 export const TENANT_COLLECTIONS = Object.values(COL) as ColName[];
 
 /** Platform-level collections (not inside a business). */
-export type RootColName = "tenants" | "users" | "admins" | "clientNotes";
+export type RootColName = "tenants" | "users" | "admins" | "clientNotes" | "clientActivity";
 
 // ---- current business
 export const colRef = (name: ColName) => collection(db(), "tenants", currentTenant(), name);

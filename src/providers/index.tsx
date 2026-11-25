@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ActivityTracker } from "./activity-tracker";
 import { AuthProvider } from "./auth-provider";
 import { ConfirmProvider } from "./confirm-provider";
 import { DataProvider } from "./data-provider";
@@ -13,6 +14,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <PwaProvider>
       <AuthProvider>
+        <ActivityTracker />
         <DataProvider>
           <TooltipProvider delayDuration={300}>
             <ConfirmProvider>

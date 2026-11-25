@@ -2,6 +2,7 @@
 
 import { Building2, ChevronRight, LogOut, Map as MapIcon } from "lucide-react";
 import Link from "next/link";
+import { ActivityLocation } from "@/components/activity-location";
 import { openAppTour } from "@/components/app-tour";
 import { BrandMark } from "@/components/brand";
 import { PageHeader } from "@/components/common";
@@ -82,6 +83,7 @@ export function MoreClient() {
         </span>
         <ChevronRight className="size-4 text-muted-foreground" />
       </button>
+      {!isSuper ? <ActivityLocation /> : null}
       <Button
         variant="outline"
         className="mt-6 w-full"

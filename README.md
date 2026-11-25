@@ -48,6 +48,12 @@ npm run dev                         # http://localhost:3000
 
 A bookable venue can be any named location. Use **Other venue** in setup or **Settings → Venues & godowns** for halls, grounds and other locations. Saved venues appear in the booking form. For a one-off event, enter its address in **Event details**.
 
+## Live users
+
+Open **Clients → Live users** to see issued logins, the latest app screen, last activity and online/offline counts by client link. An online login has reported activity in the last five minutes while its app was visible. Older or anonymous link visits cannot be assigned to a login. The view supports English and Arabic.
+
+Clients can use **More → Activity & location** to share or remove an approximate map area. The app saves rounded coordinates (roughly 10 km grid spacing) and the time they were shared. It does not update location in the background.
+
 ## Build & deploy
 
 ```bash

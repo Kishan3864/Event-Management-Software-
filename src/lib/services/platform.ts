@@ -14,7 +14,6 @@ import {
   Timestamp,
   addDoc,
   collection,
-  deleteDoc,
   deleteField,
   doc,
   getDoc,
@@ -275,9 +274,12 @@ export async function ensureClientSlugs(tenants: Tenant[]) {
 export async function deleteClient(tenantId: string, onProgress?: (deleted: number) => void): Promise<number> {
   let deleted = 0;
   const members = await getDocs(query(rootCol("users"), where("tenantId", "==", tenantId)));
-  if (!members.empty) {
+  for (let start = 0; start < members.size; start += 200) {
     const cut = writeBatch(db());
-    members.docs.forEach((d) => cut.delete(d.ref));
+    for (const member of members.docs.slice(start, start + 200)) {
+      cut.delete(member.ref);
+      cut.delete(rootDoc("clientActivity", member.id));
+    }
     await cut.commit();
   }
   for (const name of [...TENANT_COLLECTIONS, "notices"]) {
@@ -313,7 +315,10 @@ export async function sendNotice(tenantId: string, input: { title: string; body:
 
 /** Admin logins are never members of a client business. */
 export async function removeMembership(uid: string) {
-  await deleteDoc(rootDoc("users", uid));
+  const batch = writeBatch(db());
+  batch.delete(rootDoc("users", uid));
+  batch.delete(rootDoc("clientActivity", uid));
+  await batch.commit();
 }
 
 /** Makes a login the main owner shown in the client list. */

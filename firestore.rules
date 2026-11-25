@@ -71,6 +71,46 @@ service cloud.firestore {
       }
     }
 
+    match /clientActivity/{uid} {
+      function isOwner() {
+        return signedIn() && request.auth.uid == uid;
+      }
+
+      function validActivity() {
+        let data = request.resource.data;
+        return data.keys().hasOnly(['tenantId', 'lastSeen', 'screen', 'location'])
+          && data.keys().hasAll(['tenantId', 'lastSeen', 'screen'])
+          && data.tenantId is string && isMember(data.tenantId) && isActive(data.tenantId)
+          && data.lastSeen == request.time
+          && data.screen in ['setup', 'dashboard', 'bookings', 'calendar', 'customers', 'invoices',
+            'payments', 'reports', 'settings', 'stock', 'more'];
+      }
+
+      function validSharedLocation() {
+        let area = request.resource.data.location;
+        return area is map && area.keys().hasOnly(['latCell', 'lngCell', 'sharedAt'])
+          && area.keys().hasAll(['latCell', 'lngCell', 'sharedAt'])
+          && area.latCell is int && area.latCell >= -900 && area.latCell <= 900
+          && area.lngCell is int && area.lngCell >= -1800 && area.lngCell <= 1800
+          && area.sharedAt == request.time;
+      }
+
+      allow get: if isSuper() || isOwner();
+      allow list, delete: if isSuper();
+      allow create: if isOwner() && validActivity()
+        && (!('location' in request.resource.data) || validSharedLocation());
+      allow update: if isOwner() && (
+        (validActivity() && (
+          !('location' in request.resource.data)
+          || validSharedLocation()
+          || (resource.data.tenantId == request.resource.data.tenantId
+            && request.resource.data.location == resource.data.get('location', null))
+        ))
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['location'])
+          && !('location' in request.resource.data))
+      );
+    }
+
     // The software owner's private notes about each client. No client can ever read these.
     match /clientNotes/{t} {
       allow read, write: if isSuper();

@@ -26,6 +26,7 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
+import { AdminActivity } from "./admin-activity";
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, verifyBeforeUpdateEmail } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useRef } from "react";
@@ -116,6 +117,7 @@ export function AdminClient() {
   const signOutNow = useSignOut();
   const router = useRouter();
   const confirm = useConfirm();
+  const [showActivity, setShowActivity] = useState(false);
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [loginFor, setLoginFor] = useState<Tenant | null>(null);
@@ -274,14 +276,20 @@ export function AdminClient() {
       </header>
 
       <main className="page-enter mx-auto max-w-6xl px-4 pt-6 pb-16 sm:px-6">
+        {showActivity ? <AdminActivity tenants={tenants.data} back={() => setShowActivity(false)} /> : <>
         <div className="mb-5 flex flex-col gap-5 rounded-3xl bg-brand-gradient p-5 text-white shadow-lift sm:flex-row sm:items-end sm:justify-between sm:p-8">
           <div className="min-w-0 flex-1">
             <h1 className="text-3xl font-semibold tracking-tight lg:text-4xl">Clients</h1>
             <p className="mt-1 text-sm text-white/85">Manage business links, logins and plan access.</p>
           </div>
-          <Button variant="secondary" className="w-full sm:w-auto" onClick={() => setAddOpen(true)}>
-            <Plus /> Add client
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" className="flex-1 sm:flex-none" onClick={() => setShowActivity(true)}>
+              <Users /> Live users
+            </Button>
+            <Button variant="secondary" className="flex-1 sm:flex-none" onClick={() => setAddOpen(true)}>
+              <Plus /> Add client
+            </Button>
+          </div>
         </div>
 
         <div className="mb-5 grid grid-cols-3 gap-3">
@@ -426,6 +434,7 @@ export function AdminClient() {
             }
           />
         )}
+        </>}
         <p className="mt-10 text-center text-xs text-muted-foreground">
           {PRODUCT.name} · Made by {PRODUCT.madeBy}
         </p>
